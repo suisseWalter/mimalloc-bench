@@ -4,6 +4,8 @@
 
 &nbsp;
 
+this is a test version for running factorio benchmarks
+
 Suite for benchmarking malloc implementations, originally
 developed for benchmarking [`mimalloc`](https://github.com/microsoft/mimalloc).
 Collection of various benchmarks from the academic literature, together with
