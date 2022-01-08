@@ -20,9 +20,10 @@ tests_all1="cfrac espresso barnes redis lean larson larson-sized mstress rptest"
 tests_all2="alloc-test sh6bench sh8bench xmalloc-test cscratch glibc-simple glibc-thread"
 tests_all3="lean-mathlib gs z3 spec spec-bench malloc-large mleak"
 tests_all4="malloc-test cthrash rbstress"
+tests_all5="factorio"
 
-tests_all="$tests_all1 $tests_all2 $tests_all3 $tests_all4"
-tests_alla="$tests_all1 $tests_all2"  # run with 'alla' command option
+tests_all="$tests_all1 $tests_all2 $tests_all3 $tests_all4 $tests_all5"
+tests_alla="$tests_all1 $tests_all2 $tests_all3 $tests_all4"  # run with 'alla' command option
 
 tests_run=""
 tests_exclude=""
@@ -127,6 +128,7 @@ fi
 leandir="$localdevdir/lean"
 leanmldir="$leandir/../mathlib"
 redis_dir="$localdevdir/redis-6.2.6/src"
+factorio_dir="$localdevdir/factorio"
 pdfdoc="$localdevdir/325462-sdm-vol-1-2abcd-3abcd.pdf"
 
 spec_dir="$localdevdir/../../spec2017"
@@ -341,7 +343,7 @@ while : ; do
             echo "tests:"
             echo "  $tests_all1"
             echo "  $tests_all2"
-            echo "  $tests_all3 $tests_all4"
+            echo "  $tests_all3 $tests_all4 $tests_all5"
             echo ""
             exit 0;;
         *) warning "unknown option \"$1\"." 1>&2
@@ -363,7 +365,7 @@ if test "$verbose"="yes"; then
   echo "Available tests:"
   echo "  $tests_all1"
   echo "  $tests_all2"
-  echo "  $tests_all3 $tests_all4"
+  echo "  $tests_all3 $tests_all4 $tests_all5"
   echo ""
   echo "Available alloctators:"
   echo "  $alloc_all"
@@ -459,6 +461,7 @@ function run_test_env_cmd { # <test name> <allocator name> <environment args> <c
        sleep 1s
        ;;
     *)
+       #echo "run factorio"
        $timecmd -a -o $benchres -f "$1${benchfill:${#1}} $2${allocfill:${#2}} %E %M %U %S %F %R" /usr/bin/env $3 $4 < "$infile" > "$outfile";;
   esac
   # fixup larson with relative time
@@ -486,6 +489,12 @@ function run_test_env_cmd { # <test name> <allocator name> <environment args> <c
       rtime=`echo "scale=3; (10000000000 / $ops)" | bc`
       echo "$1,$2: iterations: ${ops}, relative time: ${rtime}s"
       sed -E -i.bak "s/($1  *$2  *)[^ ]*/\10:$rtime/" $benchres;;
+    factorio*)
+      rtime=`cat "$1-$2-out.txt" | sed -n 's/.* at \([0-9\.]*\) UPS/\1/p'`
+      echo "$1,$2, UPS: ${rtime}" 
+      echo "$1,$2, UPS: ${rtime}" 
+      sed -i '$s/$/'" ${rtime} "'/' $benchres ;;
+      #sed -E -i.bak "s/($1  *$2  *)[^ ]*/\10:$rtime/" $benchres;;
     spec-*)
       popd;;
   esac
@@ -514,8 +523,9 @@ function run_test_cmd {  # <test name> <command>
 # --------------------------------------------------------------------
 # Run all tests
 # --------------------------------------------------------------------
-
-echo "# benchmark allocator elapsed rss user sys page-faults page-reclaims" > $benchres
+date >>$benchres.backup
+cat $benchres >>$benchres.backup
+echo "#benchmark allocator elapsed rss user sys page-faults page-reclaims" > $benchres
 
 function run_test {  # <test>
   case $1 in
@@ -553,6 +563,14 @@ function run_test {  # <test>
           run_test_cmd "alloc-testN" "./alloc-test $procs"
         fi
       fi;;
+    factorio)
+
+      sed -i '$s/$/'" UPS "'/' $benchres 
+      #pushd $factorio_dir
+      conf="FACTORIO_BIN=$factorio_dir/factorio/bin/x64/factorio MAP=$factorio_dir/saves/flame10k.zip HOST=localhost BENCH_TICKS=1000 BENCH_RUNS=5"
+      run_test_cmd "factorio" " $conf   $factorio_dir/benchmark.sh"
+      run_test_cmd "factoriohp" "MALLOC_PAGE_RESET=0 MALLOC_LARGE_OS_PAGES=1 HUGETLB_MORECORE=thp MALLOC_ARENA_MAX=1 $conf $factorio_dir/benchmark.sh";;
+    
     larson)   
       run_test_cmd "larsonN" "./larson 5 8 1000 5000 100 4141 $procs";;
     larson-sized)

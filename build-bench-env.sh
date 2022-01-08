@@ -68,7 +68,7 @@ setup_bench=0
 setup_ch=0
 setup_lean=0
 setup_redis=0
-
+setup_factorio=0
 # various
 setup_packages=0
 
@@ -109,6 +109,7 @@ while : ; do
         # bigger benchmarks
         setup_lean=$flag_arg
         setup_redis=$flag_arg
+        setup_factorio=$flag_arg
         setup_bench=$flag_arg
         #setup_ch=$flag_arg
         setup_packages=$flag_arg
@@ -141,6 +142,8 @@ while : ; do
         setup_packages=$flag_arg;;
     redis)
         setup_redis=$flag_arg;;
+    factorio)
+        setup_factorio=$flag_arg;;
     rp)
         setup_rp=$flag_arg;;
     sc)
@@ -542,6 +545,41 @@ if test "$setup_redis" = "1"; then
 
   cd "redis-$version_redis/src"
   USE_JEMALLOC=no MALLOC=libc BUILD_TLS=no make -j $procs
+  popd
+fi
+
+if test "$setup_factorio" = "1"; then
+  phase "build factorio"
+  pushd "$devdir"
+  if test -d "factorio"; then
+    echo "folder exists"
+  else
+    mkdir factorio
+  fi
+  cd factorio
+  if test -d "factorio"; then
+    rm -r factorio
+  fi
+  wget https://factorio.com/get-download/stable/headless/linux64
+  tar -xJf linux64
+  if test -d "saves"; then
+  echo "saves already available"
+  else
+    mkdir saves
+    cd saves
+    touch saves.list 
+    echo "installing one map"
+    curl -o flame10k.zip https://factoriobox.1au.us/map/download/4c5f65003d84370f16d6950f639be1d6f92984f24c0240de6335d3e161705504.zip
+    echo "to add more files add their relative paths to extern/factorio/saves/saves.list"
+    echo "flame10k" >>saves.list
+    cd ../
+    if test -b "benchmark.sh"; then
+      echo "benchmark already available"
+    else
+      wget https://factoriobox.1au.us/scripts/benchmark.sh 
+    fi
+  fi
+
   popd
 fi
 
