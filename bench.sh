@@ -10,7 +10,7 @@ echo ""
 # Allocators and tests
 # --------------------------------------------------------------------
 
-alloc_all="sys je xmi mi tc sp sm sn tbb hd mesh nomesh sc scudo hm iso dmi smi xdmi xsmi mng dh hml"
+alloc_all="sys je xmi mi mi2 tc sp sm sn tbb hd mesh nomesh sc scudo hm iso dmi smi xdmi xsmi mng dh hml"
 alloc_secure="dh hm iso mng scudo smi"
 alloc_run=""           # allocators to run (expanded by command line options)
 alloc_installed="sys"  # later expanded to include all installed allocators
@@ -109,6 +109,7 @@ alloc_lib_add "tbb"    "$lib_tbb"
 alloc_lib_add "tc"     "$localdevdir/gperftools/.libs/libtcmalloc_minimal$extso"
 
 alloc_lib_add "mi"     "$localdevdir/mimalloc/out/release/libmimalloc$extso"
+alloc_lib_add "mi2"     "$localdevdir/mimalloc/out/release/libmimalloc$extso"
 alloc_lib_add "smi"    "$localdevdir/mimalloc/out/secure/libmimalloc-secure$extso"
 alloc_lib_add "dmi"    "$localdevdir/mimalloc/out/debug/libmimalloc-debug$extso"
 alloc_lib_add "xmi"    "$localdevdir/../../mimalloc/out/release/libmimalloc$extso"
@@ -335,6 +336,7 @@ while : ; do
             echo "  mng                          use mallocng"
             echo "  mesh                         use mesh"
             echo "  mi                           use mimalloc"
+            echo "  mi2                          use mimalloc2"
             echo "  nomesh                       use mesh with meshing disabled"
             echo "  rp                           use rpmalloc"
             echo "  sc                           use scalloc"
