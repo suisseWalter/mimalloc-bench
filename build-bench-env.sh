@@ -32,6 +32,7 @@ version_je=5.2.1
 version_mng=master
 version_mesh=7ef171c7870c8da1c52ff3d78482421f46beb94c
 version_mi=v1.7.3
+version_mi2=v2.0.3
 version_nomesh=7ef171c7870c8da1c52ff3d78482421f46beb94c
 version_rp=4c10723
 version_sc=v1.0.0
@@ -54,6 +55,7 @@ setup_je=0
 setup_mng=0
 setup_mesh=0
 setup_mi=0
+setup_mi2=0
 setup_nomesh=0
 setup_rp=0
 setup_sc=0
@@ -92,6 +94,7 @@ while : ; do
         setup_iso=$flag_arg
         setup_je=$flag_arg
         setup_mi=$flag_arg
+        setup_mi2=$flag_arg
         setup_sn=$flag_arg
         setup_tbb=$flag_arg
         setup_tc=$flag_arg
@@ -139,6 +142,8 @@ while : ; do
         setup_mesh=$flag_arg;;
     mi)
         setup_mi=$flag_arg;;
+    mi2)
+        setup_mi2=$flag_arg;;
     nomesh)
         setup_nomesh=$flag_arg;;
     packages)
@@ -179,6 +184,7 @@ while : ; do
         echo "  mng                          setup mallocng ($version_mng)"
         echo "  mesh                         setup mesh allocator ($version_mesh)"
         echo "  mi                           setup mimalloc ($version_mi)"
+        echo "  mi2                           setup mimalloc2 ($version_mi2)"
         echo "  nomesh                       setup mesh allocator w/o meshing ($version_mesh)"
         echo "  rp                           setup rpmalloc ($version_rp)"
         echo "  sc                           setup scalloc ($version_sc)"
@@ -512,6 +518,43 @@ if test "$setup_mi" = "1"; then
   popd
 fi
 
+
+if test "$setup_mi" = "1"; then
+  checkout mi $version_mi2 mimalloc2 https://github.com/microsoft/mimalloc
+
+  echo ""
+  echo "- build mimalloc2 release"
+
+  mi_use_cxx=""
+  if test "$darwin" = "1"; then
+    mi_use_cxx="-DMI_USE_CXX=ON"
+  fi
+
+  mkdir -p out/release
+  cd out/release
+  cmake ../..  $mi_use_cxx
+  make -j $procs
+  cd ../..
+
+  echo ""
+  echo "- build mimalloc2 debug with full checking"
+
+  mkdir -p out/debug
+  cd out/debug
+  cmake ../.. -DMI_CHECK_FULL=ON $mi_use_cxx
+  make -j $procs
+  cd ../..
+
+  echo ""
+  echo "- build mimalloc secure"
+
+  mkdir -p out/secure
+  cd out/secure
+  cmake ../.. $mi_use_cxx
+  make -j $procs
+  cd ../..
+  popd
+fi
 
 phase "install benchmarks"
 
