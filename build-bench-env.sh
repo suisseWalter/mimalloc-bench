@@ -519,8 +519,8 @@ if test "$setup_mi" = "1"; then
 fi
 
 
-if test "$setup_mi" = "1"; then
-  checkout mi $version_mi2 mimalloc2 https://github.com/microsoft/mimalloc
+if test "$setup_mi2" = "1"; then
+  checkout mi2 $version_mi2 mimalloc2 https://github.com/microsoft/mimalloc
 
   echo ""
   echo "- build mimalloc2 release"
