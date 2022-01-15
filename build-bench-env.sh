@@ -26,7 +26,7 @@ all=0
 # allocator versions
 version_dh=1d08836bdd6f935b333ec503cd8c9634c69de590
 version_hd=5afe855 # 3.13 #a43ac40 #d880f72  #9d137ef37
-version_hm=main
+version_hm=10
 version_iso=1.1.0
 version_je=5.2.1
 version_mng=master
@@ -90,7 +90,6 @@ while : ; do
     "") break;;
     all|none)
         all=$flag_arg
-        setup_dh=$flag_arg
         setup_hd=$flag_arg              
         setup_iso=$flag_arg
         setup_je=$flag_arg
@@ -100,12 +99,17 @@ while : ; do
         setup_tbb=$flag_arg
         setup_tc=$flag_arg
         if [ -z "$darwin" ]; then
-          setup_mng=$flag_arg   # lacking getentropy()
+          setup_dh=$flag_arg        
+          setup_mng=$flag_arg       # lacking getentropy()
           setup_hm=$flag_arg        # lacking <thread.h>
           setup_mesh=$flag_arg          
           setup_rp=$flag_arg
           setup_scudo=$flag_arg     # lacking <sys/auxv.h>
           setup_sm=$flag_arg
+        else
+          if ! [ `uname -m` = "x86_64" ]; then
+            setup_dh=$flag_arg      # does not compile on macos x64
+          fi
         fi        
         # only run Mesh's 'nomesh' configuration if asked
         #   setup_nomesh=$flag_arg
@@ -334,7 +338,8 @@ fi
 
 if test "$setup_hm" = "1"; then
   checkout hm $version_hm hm https://github.com/GrapheneOS/hardened_malloc
-  make CONFIG_NATIVE=true CONFIG_WERROR=false -j $proc
+  make CONFIG_NATIVE=true CONFIG_WERROR=false VARIANT=light -j $proc 
+  make CONFIG_NATIVE=true CONFIG_WERROR=false VARIANT=default -j $proc
   popd
 fi
 

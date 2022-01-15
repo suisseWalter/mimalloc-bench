@@ -11,6 +11,7 @@ echo ""
 # --------------------------------------------------------------------
 
 alloc_all="sys je xmi mi mi2 tc sp sm sn tbb hd mesh nomesh sc scudo hm iso dmi smi xdmi xsmi mng dh"
+alloc_all="sys je xmi mi tc sp sm sn tbb hd mesh nomesh sc scudo hm iso dmi smi xdmi xsmi mng dh hml"
 alloc_secure="dh hm iso mng scudo smi"
 alloc_run=""           # allocators to run (expanded by command line options)
 alloc_installed="sys"  # later expanded to include all installed allocators
@@ -113,6 +114,30 @@ alloc_lib_add "xmi"   "$localdevdir/../../mimalloc/out/release/libmimalloc$extso
 alloc_lib_add "xsmi"  "$localdevdir/../../mimalloc/out/secure/libmimalloc-secure$extso"
 alloc_lib_add "xdmi"  "$localdevdir/../../mimalloc/out/debug/libmimalloc-debug$extso"
 
+alloc_lib_add "dh"     "$localdevdir/dh/src/libdieharder$extso"
+alloc_lib_add "hd"     "$localdevdir/Hoard/src/libhoard$extso"
+alloc_lib_add "hm"     "$localdevdir/hm/out/libhardened_malloc$extso"
+alloc_lib_add "hml"    "$localdevdir/hm/out-light/libhardened_malloc-light$extso"
+alloc_lib_add "iso"    "$localdevdir/iso/build/libisoalloc$extso"
+alloc_lib_add "je"     "$localdevdir/jemalloc/lib/libjemalloc$extso"
+alloc_lib_add "mng"    "$localdevdir/mng/libmallocng$extso"
+alloc_lib_add "mesh"   "$localdevdir/mesh/build/lib/libmesh$extso"
+alloc_lib_add "nomesh" "$localdevdir/nomesh/build/lib/libmesh$extso"
+alloc_lib_add "rp"     "$lib_rp"
+alloc_lib_add "sc"     "$localdevdir/scalloc/out/Release/lib.target/libscalloc$extso"
+alloc_lib_add "scudo"  "$localdevdir/scudo/compiler-rt/lib/scudo/standalone/libscudo$extso"
+alloc_lib_add "sm"     "$localdevdir/SuperMalloc/release/lib/libsupermalloc$extso"
+alloc_lib_add "sn"     "$localdevdir/snmalloc/release/libsnmallocshim$extso"
+alloc_lib_add "tbb"    "$lib_tbb"
+alloc_lib_add "tc"     "$localdevdir/gperftools/.libs/libtcmalloc_minimal$extso"
+
+alloc_lib_add "mi"     "$localdevdir/mimalloc/out/release/libmimalloc$extso"
+alloc_lib_add "smi"    "$localdevdir/mimalloc/out/secure/libmimalloc-secure$extso"
+alloc_lib_add "dmi"    "$localdevdir/mimalloc/out/debug/libmimalloc-debug$extso"
+alloc_lib_add "xmi"    "$localdevdir/../../mimalloc/out/release/libmimalloc$extso"
+alloc_lib_add "xsmi"   "$localdevdir/../../mimalloc/out/secure/libmimalloc-secure$extso"
+alloc_lib_add "xdmi"   "$localdevdir/../../mimalloc/out/debug/libmimalloc-debug$extso"
+
 if test "$use_packages" = "1"; then
   alloc_lib_add "tc"  "/usr/lib/libtcmalloc$extso"
   alloc_lib_add "tbb" "/usr/lib/libtbbmalloc_proxy$extso"
@@ -186,6 +211,9 @@ function alloc_run_add_remove { # <allocator> <add?>
 while read word _; do alloc_installed="$alloc_installed ${word%:*}"; done < ${localdevdir}/versions.txt
 if is_installed "mi"; then
   alloc_installed="$alloc_installed smi"   # secure mimalloc
+fi
+if is_installed "hm"; then
+  alloc_installed="$alloc_installed hml"   # hardened_malloc light
 fi
 
 
@@ -323,6 +351,7 @@ while : ; do
             echo "  dmi                          use debug version of mimalloc"
             echo "  hd                           use hoard"
             echo "  hm                           use hardened_malloc"
+            echo "  hml                          use hardened_malloc light"
             echo "  iso                          use isoalloc"
             echo "  je                           use jemalloc"
             echo "  mng                          use mallocng"
