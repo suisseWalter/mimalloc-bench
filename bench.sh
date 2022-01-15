@@ -576,7 +576,7 @@ function run_test {  # <test>
       sed -i '$s/$/'" UPS "'/' $benchres 
       #pushd $factorio_dir
       conf="FACTORIO_BIN=$factorio_dir/factorio/bin/x64/factorio MAP=$factorio_dir/saves/flame10k.zip HOST=localhost BENCH_TICKS=1000 BENCH_RUNS=5"
-      run_test_cmd "factorio" " $conf   $factorio_dir/benchmark.sh"
+      run_test_cmd "factorio" " $conf  bash $factorio_dir/benchmark.sh"
       run_test_cmd "factoriohp" "MALLOC_PAGE_RESET=0 MALLOC_LARGE_OS_PAGES=1 HUGETLB_MORECORE=thp MALLOC_ARENA_MAX=1 $conf $factorio_dir/benchmark.sh";;
     
     larson)   
